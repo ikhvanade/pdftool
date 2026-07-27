@@ -43,4 +43,12 @@ function requireAuth(req, res, next) {
   }
 }
 
-module.exports = { attachUserIfPresent, requireAuth };
+// Dipake buat endpoint yang butuh tau "siapa guest ini" (buat ownership check)
+// TAPI TIDAK BOLEH nge-block/nge-enforce quota - misal cek status job atau
+// download hasil kerjaan sendiri. Beda dengan guestQuotaCheck yang enforce limit.
+function identifyGuestToken(req, res, next) {
+  req.guestToken = (req.signedCookies && req.signedCookies['guest_token']) || null;
+  next();
+}
+
+module.exports = { attachUserIfPresent, requireAuth, identifyGuestToken };

@@ -2,21 +2,27 @@ const express = require('express');
 const pdfController = require('../controllers/pdf.controller');
 const upload = require('../config/upload');
 const guestQuotaCheck = require('../middleware/guestQuotaCheck');
-const { attachUserIfPresent } = require('../middleware/authGuard');
+const { attachUserIfPresent, identifyGuestToken } = require('../middleware/authGuard');
 const asyncHandler = require('../utils/asyncHandler');
 
 const router = express.Router();
 
-// Semua endpoint /api/pdf/* wajib lewat attachUserIfPresent -> guestQuotaCheck
-// sesuai rule #9 CLAUDE.md.
-router.use(attachUserIfPresent, guestQuotaCheck);
+router.use(attachUserIfPresent);
 
-router.post('/compress', upload.single('file'), asyncHandler(pdfController.compress));
-router.post('/convert', upload.single('file'), asyncHandler(pdfController.convert));
-router.get('/jobs/:id', asyncHandler(pdfController.getJobStatus));
+// Endpoint yang MEMBUAT job baru (proses berat) -> wajib kena guestQuotaCheck
+// penuh, sesuai rule #9 CLAUDE.md.
+router.post('/compress', guestQuotaCheck, upload.single('file'), asyncHandler(pdfController.compress));
+router.post('/convert', guestQuotaCheck, upload.single('file'), asyncHandler(pdfController.convert));
+router.post('/protect', guestQuotaCheck, upload.single('file'), asyncHandler(pdfController.protect));
+
+// Endpoint status/download BUKAN "pemakaian baru" - cuma ngecek/ngambil hasil
+// dari job yang UDAH kehitung kuotanya pas create. Makanya gak pake
+// guestQuotaCheck (yang bisa nge-block), cuma identifyGuestToken buat
+// ownership check di controller.
+router.get('/jobs/:id', identifyGuestToken, asyncHandler(pdfController.getJobStatus));
+router.get('/download/:id', identifyGuestToken, asyncHandler(pdfController.downloadJob));
 
 // Merge/split/watermark/preview TIDAK ada endpoint backend - itu client-side
-// (pdf-lib/pdfjs di browser) sesuai arsitektur di PRD.md §6.2. Kalau nanti mau
-// backend-side juga, tetap wajib kena guestQuotaCheck yang sama.
+// (pdf-lib/pdfjs di browser) sesuai arsitektur di PRD.md §6.2.
 
 module.exports = router;
