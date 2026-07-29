@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { mergePdfs, downloadBytes } from '../pdfClient';
+import { activityApi } from '../../../lib/api';
+import { useAuthStore } from '../../../store/authStore';
 import MultiUploadZone from './MultiUploadZone';
 import Button from '../../../components/Button';
 
@@ -7,6 +9,7 @@ export default function MergePanel() {
   const [files, setFiles] = useState([]);
   const [status, setStatus] = useState('idle'); // idle | processing | done | failed
   const [error, setError] = useState(null);
+  const user = useAuthStore((s) => s.user);
 
   function handleFilesAdd(newFiles) {
     setFiles((prev) => [...prev, ...newFiles]);
@@ -38,6 +41,13 @@ export default function MergePanel() {
       const bytes = await mergePdfs(files);
       downloadBytes(bytes, 'hasil-merge.pdf');
       setStatus('done');
+
+      // Log ke history - CUMA kalau user login (guest emang gak dapet history
+      // tersimpan, sesuai PRD §6.1). Ini best-effort, kalau gagal gak perlu
+      // gagalin keseluruhan proses karena file-nya udah berhasil di-download.
+      if (user) {
+        activityApi.log('pdf_merge', 'hasil-merge.pdf').catch(() => {});
+      }
     } catch (err) {
       setStatus('failed');
       setError('Gagal gabungin PDF - pastiin semua file PDF valid (bukan corrupt/ke-password).');

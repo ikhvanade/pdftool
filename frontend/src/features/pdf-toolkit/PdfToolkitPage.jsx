@@ -37,7 +37,7 @@ export default function PdfToolkitPage() {
         <ActivePanel />
         {tool.clientSide && (
           <p className="font-body text-caption text-accent-muted mt-6 pt-4 border-t border-accent-muted/10">
-            Diproses langsung di browser kamu - file gak diupload ke server sama sekali.
+            Diproses langsung di browser.
           </p>
         )}
       </Card>

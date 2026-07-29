@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { watermarkPdf, downloadBytes } from '../pdfClient';
+import { activityApi } from '../../../lib/api';
+import { useAuthStore } from '../../../store/authStore';
 import UploadZone from './UploadZone';
 import Button from '../../../components/Button';
 
@@ -9,6 +11,7 @@ export default function WatermarkPanel() {
   const [opacity, setOpacity] = useState(0.3);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
+  const user = useAuthStore((s) => s.user);
 
   async function handleApply() {
     if (!file || !text) return;
@@ -18,6 +21,10 @@ export default function WatermarkPanel() {
       const bytes = await watermarkPdf(file, { text, opacity });
       downloadBytes(bytes, 'hasil-watermark.pdf');
       setStatus('done');
+
+      if (user) {
+        activityApi.log('pdf_watermark', file.name).catch(() => {});
+      }
     } catch (err) {
       setStatus('failed');
       setError('Gagal nambahin watermark - pastiin file PDF valid.');

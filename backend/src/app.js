@@ -11,6 +11,7 @@ const qrRoutes = require('./routes/qr.routes');
 const historyRoutes = require('./routes/history.routes');
 const presetsRoutes = require('./routes/presets.routes');
 const guestRoutes = require('./routes/guest.routes');
+const activityRoutes = require('./routes/activity.routes');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/qr', qrRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/presets', presetsRoutes);
 app.use('/api/guest', guestRoutes);
+app.use('/api/activity', activityRoutes);
 
 // 404 buat route yang gak match
 app.use('/api', (req, res) => {

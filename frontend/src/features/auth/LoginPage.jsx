@@ -35,7 +35,7 @@ export default function LoginPage() {
         </div>
 
         <div className="text-center mt-6 text-accent-muted/50 font-body text-caption flex items-center justify-center gap-2">
-          <span className="material-symbols-outlined text-sm">security</span> Secured by CozyDash
+          <span className="material-symbols-outlined text-sm">security</span> Secured by VannTools
         </div>
       </div>
     </div>

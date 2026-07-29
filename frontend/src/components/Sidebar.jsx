@@ -20,7 +20,7 @@ export default function Sidebar() {
           <span className="material-symbols-outlined">widgets</span>
         </div>
         <div>
-          <h1 className="font-heading text-h3 text-highlight">Ruang Kerja</h1>
+          <h1 className="font-heading text-h3 text-highlight">VannTools</h1>
           <p className="font-body text-caption text-accent-muted">
             {isLoggedIn ? `Halo, ${user.username}` : 'Mode Tamu'}
           </p>

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import JSZip from 'jszip';
 import { getPageCount, splitPdf, downloadBytes } from '../pdfClient';
+import { activityApi } from '../../../lib/api';
+import { useAuthStore } from '../../../store/authStore';
 import UploadZone from './UploadZone';
 import Button from '../../../components/Button';
 
@@ -11,6 +13,7 @@ export default function SplitPanel() {
   const [rangeStr, setRangeStr] = useState('');
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     if (!file) {
@@ -42,6 +45,10 @@ export default function SplitPanel() {
         URL.revokeObjectURL(url);
       }
       setStatus('done');
+
+      if (user) {
+        activityApi.log('pdf_split', file.name).catch(() => {});
+      }
     } catch (err) {
       setStatus('failed');
       setError(err.message || 'Gagal split PDF.');

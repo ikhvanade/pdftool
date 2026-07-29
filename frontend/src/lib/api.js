@@ -79,4 +79,9 @@ export const presetsApi = {
   create: (payload) => client.post('/presets', payload).then((r) => r.data),
 };
 
+export const activityApi = {
+  log: (toolType, fileName) =>
+    client.post('/activity/log', { tool_type: toolType, file_name: fileName }).then((r) => r.data),
+};
+
 export default client;
