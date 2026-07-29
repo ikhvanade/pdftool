@@ -13,7 +13,7 @@ export default function LoginPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-base-dark border border-accent-muted/30 mb-6">
               <span className="material-symbols-outlined text-4xl text-highlight">widgets</span>
             </div>
-            <h1 className="font-heading text-h1 text-highlight mb-2 tracking-tight">CozyDash</h1>
+            <h1 className="font-heading text-h1 text-highlight mb-2 tracking-tight">VannTools</h1>
             <p className="font-body text-body text-accent-muted max-w-xs mx-auto">
               Ruang kerja personal Anda untuk PDF &amp; QR.
             </p>
