@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { z } = require('zod');
 const userModel = require('../models/user.model');
+const pool = require('../config/db');
 const env = require('../config/env');
 const { ok, fail } = require('../utils/response');
 
@@ -59,4 +60,41 @@ async function logout(req, res) {
   return ok(res, { message: 'Logged out' });
 }
 
-module.exports = { login, logout };
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Password lama wajib diisi'),
+  newPassword: z.string().min(8, 'Password baru minimal 8 karakter'),
+});
+
+async function changePassword(req, res, next) {
+  try {
+    const parsed = changePasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'VALIDATION_ERROR',
+        details: parsed.error.flatten().fieldErrors,
+      });
+    }
+    const { currentPassword, newPassword } = parsed.data;
+
+    // req.user di-attach oleh middleware requireAuth (lihat auth.routes.js)
+    const [rows] = await pool.execute('SELECT password_hash FROM users WHERE id = ?', [req.user.id]);
+    if (rows.length === 0) return fail(res, 'USER_NOT_FOUND', 404);
+
+    const isValid = await bcrypt.compare(currentPassword, rows[0].password_hash);
+    if (!isValid) return fail(res, 'CURRENT_PASSWORD_INCORRECT', 401);
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await userModel.updatePasswordHash(req.user.id, newHash);
+
+    // Catatan: karena JWT stateless, token yang lagi dipake di device lain
+    // TETEP valid sampe expire (7 hari) walau password udah diganti. Ini
+    // trade-off yang sama kayak logout - kalau butuh invalidate semua sesi
+    // lain pas ganti password, perlu token blacklist/versioning (belum ada di v1).
+    return ok(res, { message: 'Password berhasil diganti' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { login, logout, changePassword };

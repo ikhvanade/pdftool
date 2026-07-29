@@ -24,4 +24,8 @@ async function createUser({ username, email, passwordHash }) {
   return result.insertId;
 }
 
-module.exports = { findByUsernameOrEmail, findById, createUser };
+async function updatePasswordHash(userId, passwordHash) {
+  await pool.execute('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, userId]);
+}
+
+module.exports = { findByUsernameOrEmail, findById, createUser, updatePasswordHash };
