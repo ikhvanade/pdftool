@@ -5,6 +5,7 @@ import RecentlyUsedCarousel from './components/RecentlyUsedCarousel';
 import ToolCard from './components/ToolCard';
 import StatsWidget from './components/StatsWidget';
 import TipsWidget from './components/TipsWidget';
+import UsageChart from './components/UsageChart';
 
 function timeAwareGreeting() {
   const hour = new Date().getHours();
@@ -17,6 +18,7 @@ function timeAwareGreeting() {
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const [recentItems, setRecentItems] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [stats, setStats] = useState({ pdfCount: 0, qrCount: 0 });
 
   useEffect(() => {
@@ -26,9 +28,10 @@ export default function DashboardPage() {
       setRecentItems(res.data.items);
     });
 
-    // Hitung stats dari semua history (page besar) - untuk v1 ini cukup,
-    // kalau datanya udah banyak sebaiknya ada endpoint aggregate terpisah.
+    // Hitung stats & data chart dari semua history (page besar) - untuk v1 ini
+    // cukup, kalau datanya udah banyak sebaiknya ada endpoint aggregate terpisah.
     historyApi.list({ page: 1, pageSize: 1000 }).then((res) => {
+      setAllItems(res.data.items);
       const pdfCount = res.data.items.filter((i) => i.tool_type.startsWith('pdf_')).length;
       const qrCount = res.data.items.filter((i) => i.tool_type === 'qr_generate').length;
       setStats({ pdfCount, qrCount });
@@ -78,6 +81,8 @@ export default function DashboardPage() {
               variant="secondary"
             />
           </section>
+
+          {user && <UsageChart items={allItems} />}
         </div>
 
         <div className="lg:col-span-4 space-y-gutter-grid">

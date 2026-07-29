@@ -34,7 +34,15 @@ export default function QrPreviewPanel({ text, darkColor, lightColor, format }) 
     setExportResult(null);
     try {
       const res = await qrApi.generate({ text, darkColor, lightColor, format });
-      setExportResult(res.data.output);
+      const output = res.data.output;
+      setExportResult(output);
+
+      // Auto-download langsung - gak perlu klik link tambahan lagi.
+      const href = format === 'svg' ? `data:image/svg+xml;utf8,${encodeURIComponent(output)}` : output;
+      const a = document.createElement('a');
+      a.href = href;
+      a.download = `qrcode.${format}`;
+      a.click();
     } catch (err) {
       const code = err.response?.data?.error;
       if (code === 'GUEST_QUOTA_EXCEEDED') {
@@ -45,14 +53,6 @@ export default function QrPreviewPanel({ text, darkColor, lightColor, format }) 
     } finally {
       setExporting(false);
     }
-  }
-
-  function downloadHref() {
-    if (!exportResult) return '#';
-    if (format === 'svg') {
-      return `data:image/svg+xml;utf8,${encodeURIComponent(exportResult)}`;
-    }
-    return exportResult; // udah data:image/png;base64,... dari backend
   }
 
   return (
@@ -80,13 +80,9 @@ export default function QrPreviewPanel({ text, darkColor, lightColor, format }) 
       {exportError && <p className="font-body text-caption text-error mt-2">{exportError}</p>}
 
       {exportResult && (
-        <a
-          href={downloadHref()}
-          download={`qrcode.${format}`}
-          className="font-body text-body text-highlight hover:underline mt-3"
-        >
-          Klik di sini buat download file-nya
-        </a>
+        <p className="font-body text-body text-success mt-3">
+          File udah otomatis ke-download.
+        </p>
       )}
     </div>
   );

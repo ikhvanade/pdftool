@@ -11,6 +11,15 @@ export default {
         surface: '#393E46',
         'accent-muted': '#948979',
         highlight: '#DFD0B8',
+        // 'on-surface' - BUKAN token baru dari design.md, ini FIX BUG: dipake di
+        // 49 tempat di komponen tapi gak pernah didefinisiin di sini, jadi teks
+        // fallback ke warna default (hitam) di atas background gelap - itu
+        // penyebab UI "berantakan/warna kacau" yang dilaporkan. Ditambahkan
+        // sebagai warm off-white (tint dari highlight) buat body text yang
+        // WCAG AA-compliant di atas base-dark/surface, sesuai requirement
+        // aksesibilitas design.md §8. Highlight (#DFD0B8) tetap dipakai khusus
+        // buat CTA/heading/emphasis, bukan running text biasa.
+        'on-surface': '#EDE9DD',
         // Functional colors - dipilih supaya tetap kontras & harmonis
         // dengan palette warm/low-contrast di atas (bukan pure red/green).
         error: '#E5484D',
