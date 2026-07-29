@@ -10,8 +10,8 @@ export default function LoginPage() {
 
         <div className="bg-surface border border-accent-muted/20 rounded-xl p-8 sm:p-10 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]">
           <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-base-dark border border-accent-muted/30 mb-6">
-              <span className="material-symbols-outlined text-4xl text-highlight">widgets</span>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-base-dark border border-accent-muted/30 mb-6 overflow-hidden">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <h1 className="font-heading text-h1 text-highlight mb-2 tracking-tight">VannTools</h1>
             <p className="font-body text-body text-accent-muted max-w-xs mx-auto">

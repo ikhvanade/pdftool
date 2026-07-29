@@ -16,8 +16,8 @@ export default function Sidebar() {
   return (
     <nav className="hidden md:flex bg-base-dark border-r border-accent-muted/20 fixed left-0 top-0 h-full w-sidebar-width flex-col p-stack-md z-40">
       <div className="mb-8 px-4 flex items-center gap-4">
-        <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-highlight">
-          <span className="material-symbols-outlined">widgets</span>
+        <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center overflow-hidden">
+          <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
         </div>
         <div>
           <h1 className="font-heading text-h3 text-highlight">VannTools</h1>

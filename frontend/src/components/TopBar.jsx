@@ -60,8 +60,8 @@ export default function TopBar() {
       {/* Mobile header */}
       <header className="md:hidden flex items-center justify-between p-4 bg-base-dark sticky top-0 z-30 border-b border-accent-muted/10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-highlight">
-            <span className="material-symbols-outlined text-lg">widgets</span>
+          <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center overflow-hidden">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <span className="font-heading text-h3 text-highlight">CozyDash</span>
         </div>
