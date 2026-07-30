@@ -43,6 +43,19 @@ async function processNext() {
         "UPDATE processing_jobs SET status = 'done', output_path = ? WHERE id = ?",
         [result.outputPath, job.jobId]
       );
+      // Catet ke activity_log - CUMA kalau user login (guest emang gak dapet
+      // history tersimpan, sesuai PRD §6.1). Ini penyebab bug "compress/convert/
+      // protect gak pernah muncul di stats/history" - dulu emang gak pernah
+      // di-insert sama sekali. Non-blocking (gak di-await tanpa handling) biar
+      // gak nge-delay proses lain di queue.
+      if (job.userId) {
+        pool
+          .execute(
+            `INSERT INTO activity_log (user_id, tool_type, file_name, action) VALUES (?, ?, ?, 'process')`,
+            [job.userId, job.type, job.originalName || null]
+          )
+          .catch((err) => console.error('[activity_log] Gagal insert:', err.message));
+      }
     } else {
       await pool.execute(
         "UPDATE processing_jobs SET status = 'failed', error_message = ? WHERE id = ?",

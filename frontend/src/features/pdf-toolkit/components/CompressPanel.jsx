@@ -6,9 +6,9 @@ import JobStatusPanel from './JobStatusPanel';
 import Button from '../../../components/Button';
 
 const LEVELS = [
-  { id: 'low', label: 'Rendah', hint: 'Ukuran paling kecil' },
-  { id: 'medium', label: 'Sedang', hint: 'Seimbang' },
-  { id: 'high', label: 'Tinggi', hint: 'Kualitas terbaik' },
+  { id: 'low', label: 'Rendah', dpi: '72 DPI', hint: '~60-80% lebih kecil*' },
+  { id: 'medium', label: 'Sedang', dpi: '150 DPI', hint: '~30-50% lebih kecil*' },
+  { id: 'high', label: 'Tinggi', dpi: '300 DPI', hint: '~10-20% lebih kecil*' },
 ];
 
 export default function CompressPanel() {
@@ -32,22 +32,26 @@ export default function CompressPanel() {
 
       <div className="mt-4">
         <p className="font-body text-body text-accent-muted mb-2">Level kompresi</p>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {LEVELS.map((l) => (
             <button
               key={l.id}
               onClick={() => setLevel(l.id)}
-              className={`px-4 py-2 rounded-lg font-body text-body border transition-colors ${
+              className={`px-4 py-2 rounded-lg font-body text-body border transition-colors text-left ${
                 level === l.id
                   ? 'bg-highlight text-base-dark border-highlight'
                   : 'border-accent-muted/30 text-on-surface hover:border-accent-muted'
               }`}
             >
-              {l.label}
+              {l.label} <span className="text-caption opacity-70">({l.dpi})</span>
               <span className="block text-caption opacity-70">{l.hint}</span>
             </button>
           ))}
         </div>
+        <p className="font-body text-caption text-accent-muted mt-2">
+          *Perkiraan - hasil aktual tergantung isi PDF (dokumen penuh gambar
+          bakal ngurang lebih drastis daripada dokumen teks doang).
+        </p>
       </div>
 
       <Button

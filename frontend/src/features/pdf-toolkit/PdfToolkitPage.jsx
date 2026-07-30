@@ -6,6 +6,7 @@ import WatermarkPanel from './components/WatermarkPanel';
 import CompressPanel from './components/CompressPanel';
 import ConvertPanel from './components/ConvertPanel';
 import ProtectPanel from './components/ProtectPanel';
+import ImageToPdfPanel from './components/ImageToPdfPanel';
 import Card from '../../components/Card';
 
 const PANEL_BY_TOOL = {
@@ -15,6 +16,7 @@ const PANEL_BY_TOOL = {
   compress: CompressPanel,
   convert: ConvertPanel,
   protect: ProtectPanel,
+  'image-to-pdf': ImageToPdfPanel,
 };
 
 export default function PdfToolkitPage() {

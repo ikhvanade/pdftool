@@ -91,6 +91,23 @@ export async function watermarkPdf(file, { text, opacity = 0.3, fontSize = 48, r
   return doc.save();
 }
 
+export async function imagesToPdf(files) {
+  const doc = await PDFDocument.create();
+
+  for (const file of files) {
+    const bytes = await file.arrayBuffer();
+    const isPng = file.type === 'image/png';
+    const image = isPng ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
+
+    // Halaman disesuaikan ke dimensi gambar asli (dalam points, 1px = 1pt) -
+    // biar gak ada distorsi/crop, beda dari kalau dipaksa fit ke ukuran A4 tetap.
+    const page = doc.addPage([image.width, image.height]);
+    page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
+  }
+
+  return doc.save();
+}
+
 export function downloadBytes(bytes, filename) {
   const blob = new Blob([bytes], { type: 'application/pdf' });
   const url = URL.createObjectURL(blob);

@@ -7,7 +7,10 @@ const PRESET_COLORS = [
   { dark: '#393E46', light: '#948979', label: 'Muted' },
 ];
 
-export default function QrInputPanel({ text, setText, darkColor, setDarkColor, lightColor, setLightColor, format, setFormat }) {
+export default function QrInputPanel({
+  text, setText, darkColor, setDarkColor, lightColor, setLightColor, format, setFormat,
+  logoPreview, onLogoSelect, onLogoRemove,
+}) {
   return (
     <div className="space-y-6">
       <div>
@@ -79,6 +82,40 @@ export default function QrInputPanel({ text, setText, darkColor, setDarkColor, l
             </button>
           ))}
         </div>
+      </div>
+
+      <div>
+        <p className="font-body text-body text-accent-muted mb-2">Logo di tengah QR (opsional)</p>
+        {format === 'svg' ? (
+          <p className="font-body text-caption text-accent-muted">
+            Embed logo cuma didukung buat format PNG - ganti format export dulu di atas.
+          </p>
+        ) : logoPreview ? (
+          <div className="flex items-center gap-3">
+            <img src={logoPreview} alt="Logo" className="w-12 h-12 rounded object-cover border border-accent-muted/30" />
+            <button
+              onClick={onLogoRemove}
+              className="font-body text-caption text-error hover:underline"
+            >
+              Hapus logo
+            </button>
+          </div>
+        ) : (
+          <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-accent-muted/30 text-on-surface hover:border-accent-muted cursor-pointer font-body text-body">
+            <span className="material-symbols-outlined text-lg">upload</span>
+            Upload logo
+            <input
+              type="file"
+              accept="image/png,image/jpeg"
+              className="hidden"
+              onChange={(e) => e.target.files?.[0] && onLogoSelect(e.target.files[0])}
+            />
+          </label>
+        )}
+        <p className="font-body text-caption text-accent-muted mt-2">
+          Logo diletakkan di tengah dengan koreksi error QR dinaikkan otomatis
+          biar tetap ke-scan.
+        </p>
       </div>
     </div>
   );

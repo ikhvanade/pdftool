@@ -37,7 +37,14 @@ async function compress(req, res, next) {
       [jobId, req.user ? req.user.id : null, req.guestToken || null, req.file.path]
     );
 
-    enqueueJob({ jobId, type: 'pdf_compress', inputPath: req.file.path, options: { level } });
+    enqueueJob({
+      jobId,
+      type: 'pdf_compress',
+      inputPath: req.file.path,
+      options: { level },
+      userId: req.user ? req.user.id : null,
+      originalName: req.file.originalname,
+    });
 
     // Increment guest usage di sini karena job SUDAH diterima & antri
     // (bukan nunggu selesai proses, karena bisa makan waktu lama).
@@ -62,7 +69,14 @@ async function convert(req, res, next) {
       [jobId, req.user ? req.user.id : null, req.guestToken || null, req.file.path]
     );
 
-    enqueueJob({ jobId, type: 'pdf_convert', inputPath: req.file.path, options: { targetFormat } });
+    enqueueJob({
+      jobId,
+      type: 'pdf_convert',
+      inputPath: req.file.path,
+      options: { targetFormat },
+      userId: req.user ? req.user.id : null,
+      originalName: req.file.originalname,
+    });
 
     if (req.incrementGuestUsage) await req.incrementGuestUsage();
 
@@ -98,7 +112,14 @@ async function protect(req, res, next) {
     );
 
     // Password CUMA dilempar ke worker in-memory, TIDAK PERNAH disimpan ke DB.
-    enqueueJob({ jobId, type: 'pdf_protect', inputPath: req.file.path, options: { password: parsed.data.password } });
+    enqueueJob({
+      jobId,
+      type: 'pdf_protect',
+      inputPath: req.file.path,
+      options: { password: parsed.data.password },
+      userId: req.user ? req.user.id : null,
+      originalName: req.file.originalname,
+    });
 
     if (req.incrementGuestUsage) await req.incrementGuestUsage();
 

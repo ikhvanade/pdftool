@@ -14,7 +14,7 @@ const { ok } = require('../utils/response');
 // (sesuai PRD §6.1 & §6.6).
 
 const logSchema = z.object({
-  tool_type: z.enum(['pdf_merge', 'pdf_split', 'pdf_watermark']),
+  tool_type: z.enum(['pdf_merge', 'pdf_split', 'pdf_watermark', 'image_to_pdf']),
   file_name: z.string().max(255).nullable().optional(),
 });
 

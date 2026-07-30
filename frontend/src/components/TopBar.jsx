@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { guestApi } from '../lib/api';
 
@@ -14,6 +14,7 @@ function timeAwareGreeting() {
 export default function TopBar() {
   const user = useAuthStore((s) => s.user);
   const [quota, setQuota] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) return; // unlimited buat user login, gak perlu fetch quota
@@ -52,7 +53,11 @@ export default function TopBar() {
             </Link>
           </div>
         )}
-        <button className="text-on-surface hover:text-highlight transition-colors">
+        <button
+          onClick={() => navigate(user ? '/settings' : '/login')}
+          className="text-on-surface hover:text-highlight transition-colors"
+          title={user ? 'Pengaturan akun' : 'Login'}
+        >
           <span className="material-symbols-outlined">account_circle</span>
         </button>
       </header>
@@ -63,7 +68,7 @@ export default function TopBar() {
           <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center overflow-hidden">
             <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
-          <span className="font-heading text-h3 text-highlight">CozyDash</span>
+          <span className="font-heading text-h3 text-highlight">VannTools</span>
         </div>
         {!user && quota?.data && !quota.data.unlimited && (
           <span

@@ -5,6 +5,7 @@ const TOOL_LABEL = {
   pdf_merge: 'PDF Merge',
   pdf_split: 'PDF Split',
   pdf_watermark: 'PDF Watermark',
+  image_to_pdf: 'Gambar ke PDF',
   qr_generate: 'QR Generate',
 };
 

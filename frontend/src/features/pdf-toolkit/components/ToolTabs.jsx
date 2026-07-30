@@ -2,7 +2,8 @@ export const TOOLS = [
   { id: 'merge', label: 'Merge', clientSide: true },
   { id: 'split', label: 'Split', clientSide: true },
   { id: 'compress', label: 'Compress', clientSide: false },
-  { id: 'convert', label: 'Convert', clientSide: false },
+  { id: 'convert', label: 'PDF → Gambar', clientSide: false },
+  { id: 'image-to-pdf', label: 'Gambar → PDF', clientSide: true },
   { id: 'watermark', label: 'Watermark', clientSide: true },
   { id: 'protect', label: 'Protect', clientSide: false },
 ];

@@ -5,6 +5,7 @@ const TOOL_ICON = {
   pdf_merge: 'picture_as_pdf',
   pdf_split: 'picture_as_pdf',
   pdf_watermark: 'picture_as_pdf',
+  image_to_pdf: 'picture_as_pdf',
   qr_generate: 'qr_code',
 };
 

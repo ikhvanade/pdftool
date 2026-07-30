@@ -8,6 +8,18 @@ export default function QrGeneratorPage() {
   const [darkColor, setDarkColor] = useState('#222831');
   const [lightColor, setLightColor] = useState('#DFD0B8');
   const [format, setFormat] = useState('png');
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+
+  function handleLogoSelect(file) {
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  }
+
+  function handleLogoRemove() {
+    setLogoFile(null);
+    setLogoPreview(null);
+  }
 
   return (
     <>
@@ -30,12 +42,21 @@ export default function QrGeneratorPage() {
             setLightColor={setLightColor}
             format={format}
             setFormat={setFormat}
+            logoPreview={logoPreview}
+            onLogoSelect={handleLogoSelect}
+            onLogoRemove={handleLogoRemove}
           />
         </Card>
 
         <div>
           <h3 className="font-heading text-h3 text-on-surface mb-4">Pratinjau Langsung</h3>
-          <QrPreviewPanel text={text} darkColor={darkColor} lightColor={lightColor} format={format} />
+          <QrPreviewPanel
+            text={text}
+            darkColor={darkColor}
+            lightColor={lightColor}
+            format={format}
+            logoFile={logoFile}
+          />
         </div>
       </div>
     </>

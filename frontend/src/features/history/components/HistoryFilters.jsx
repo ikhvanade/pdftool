@@ -1,7 +1,11 @@
 const FILTERS = [
   { id: '', label: 'Semua' },
+  { id: 'pdf_merge', label: 'Merge' },
+  { id: 'pdf_split', label: 'Split' },
   { id: 'pdf_compress', label: 'Compress' },
-  { id: 'pdf_convert', label: 'Convert' },
+  { id: 'pdf_convert', label: 'PDF → Gambar' },
+  { id: 'image_to_pdf', label: 'Gambar → PDF' },
+  { id: 'pdf_watermark', label: 'Watermark' },
   { id: 'pdf_protect', label: 'Protect' },
   { id: 'qr_generate', label: 'QR Code' },
 ];

@@ -1,11 +1,15 @@
 import { useRef } from 'react';
 
-export default function MultiUploadZone({ files, onFilesAdd, onRemove, onMove }) {
+export default function MultiUploadZone({
+  files, onFilesAdd, onRemove, onMove,
+  accept = 'application/pdf', label = 'Tarik beberapa file PDF ke sini, atau klik buat pilih (bisa lebih dari 1)',
+}) {
   const inputRef = useRef(null);
+  const acceptedTypes = accept.split(',');
 
   function handleDrop(e) {
     e.preventDefault();
-    const dropped = Array.from(e.dataTransfer.files || []).filter((f) => f.type === 'application/pdf');
+    const dropped = Array.from(e.dataTransfer.files || []).filter((f) => acceptedTypes.includes(f.type));
     if (dropped.length) onFilesAdd(dropped);
   }
 
@@ -20,15 +24,13 @@ export default function MultiUploadZone({ files, onFilesAdd, onRemove, onMove })
         <input
           ref={inputRef}
           type="file"
-          accept="application/pdf"
+          accept={accept}
           multiple
           className="hidden"
           onChange={(e) => e.target.files?.length && onFilesAdd(Array.from(e.target.files))}
         />
         <span className="material-symbols-outlined text-4xl text-accent-muted mb-2 block">upload_file</span>
-        <p className="font-body text-body text-on-surface">
-          Tarik beberapa file PDF ke sini, atau klik buat pilih (bisa lebih dari 1)
-        </p>
+        <p className="font-body text-body text-on-surface">{label}</p>
       </div>
 
       {files.length > 0 && (
