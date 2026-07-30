@@ -27,7 +27,7 @@ export default function ProtectPanel() {
 
       <div className="mt-4">
         <label className="block font-body text-body text-accent-muted mb-2" htmlFor="protect-password">
-          Password buat PDF ini
+          Masukkan Password buat PDF ini
         </label>
         <input
           id="protect-password"
@@ -39,7 +39,7 @@ export default function ProtectPanel() {
           className="w-full px-4 py-3 bg-base-dark border border-accent-muted/30 rounded-lg text-on-surface placeholder-accent-muted/50 focus:ring-2 focus:ring-highlight focus:border-transparent outline-none font-body text-body"
         />
         <p className="font-body text-caption text-accent-muted mt-2">
-          Password ini gak disimpan di server kami sama sekali - inget-inget baik-baik.
+          Password ini gak disimpan di server kami sama sekali.
         </p>
       </div>
 

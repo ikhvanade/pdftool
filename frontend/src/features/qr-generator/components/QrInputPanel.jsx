@@ -15,20 +15,20 @@ export default function QrInputPanel({
     <div className="space-y-6">
       <div>
         <label className="block font-body text-body text-accent-muted mb-2" htmlFor="qr-text">
-          Text atau URL
+          Isi Konten QR
         </label>
         <textarea
           id="qr-text"
           rows={3}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="https://contoh.com atau teks apapun"
+          placeholder="https://website.com atau masukkan teks di sini"
           className="w-full px-4 py-3 bg-base-dark border border-accent-muted/30 rounded-lg text-on-surface placeholder-accent-muted/50 focus:ring-2 focus:ring-highlight focus:border-transparent outline-none font-body text-body resize-none"
         />
       </div>
 
       <div>
-        <p className="font-body text-body text-accent-muted mb-2">Warna</p>
+        <p className="font-body text-body text-accent-muted mb-2">Tema Warna</p>
         <div className="flex gap-3 flex-wrap">
           {PRESET_COLORS.map((preset) => (
             <button
@@ -66,7 +66,7 @@ export default function QrInputPanel({
       </div>
 
       <div>
-        <p className="font-body text-body text-accent-muted mb-2">Format export</p>
+        <p className="font-body text-body text-accent-muted mb-2">Format Download</p>
         <div className="flex gap-2">
           {['png', 'svg'].map((f) => (
             <button
@@ -113,8 +113,7 @@ export default function QrInputPanel({
           </label>
         )}
         <p className="font-body text-caption text-accent-muted mt-2">
-          Logo diletakkan di tengah dengan koreksi error QR dinaikkan otomatis
-          biar tetap ke-scan.
+          Logo akan otomatis disesuaikan agar QR tetap bisa discan.
         </p>
       </div>
     </div>

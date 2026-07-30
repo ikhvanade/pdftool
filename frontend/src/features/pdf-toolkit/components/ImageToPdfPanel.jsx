@@ -55,7 +55,7 @@ export default function ImageToPdfPanel() {
         onRemove={handleRemove}
         onMove={handleMove}
         accept="image/png,image/jpeg"
-        label="Tarik beberapa gambar (JPG/PNG) ke sini, urutan jadi urutan halaman PDF"
+        label="Upload/Tarik beberapa gambar (JPG/PNG) ke sini, urutan jadi urutan halaman PDF"
       />
 
       <Button

@@ -114,7 +114,7 @@ export default function QrPreviewPanel({ text, darkColor, lightColor, format, lo
       ) : (
         <div className="w-64 h-64 rounded-lg border-2 border-dashed border-accent-muted/30 flex items-center justify-center">
           <p className="font-body text-caption text-accent-muted text-center px-4">
-            Ketik text/URL buat liat pratinjau
+            Masukkan teks atau URL untuk melihat preview QR code
           </p>
         </div>
       )}

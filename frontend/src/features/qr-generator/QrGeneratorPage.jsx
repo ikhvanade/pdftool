@@ -26,13 +26,13 @@ export default function QrGeneratorPage() {
       <section className="mb-6">
         <h2 className="font-heading text-h1 text-on-surface mb-2">QR Generator</h2>
         <p className="font-body text-body-lg text-accent-muted">
-          Buat kode QR kustom untuk tautan, teks, dan lainnya.
+          Buat kode QR custom untuk link, teks, WhatsApp, WiFi, dan lainnya dalam hitungan detik.
         </p>
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid">
         <Card>
-          <h3 className="font-heading text-h3 text-on-surface mb-4">Penyesuaian Gaya</h3>
+          <h3 className="font-heading text-h3 text-on-surface mb-4">Kustomisasi QR</h3>
           <QrInputPanel
             text={text}
             setText={setText}
@@ -49,7 +49,7 @@ export default function QrGeneratorPage() {
         </Card>
 
         <div>
-          <h3 className="font-heading text-h3 text-on-surface mb-4">Pratinjau Langsung</h3>
+          <h3 className="font-heading text-h3 text-on-surface mb-4">Preview</h3>
           <QrPreviewPanel
             text={text}
             darkColor={darkColor}

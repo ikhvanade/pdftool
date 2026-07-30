@@ -7,7 +7,7 @@ import Button from '../../../components/Button';
 
 export default function WatermarkPanel() {
   const [file, setFile] = useState(null);
-  const [text, setText] = useState('CONFIDENTIAL');
+  const [text, setText] = useState('');
   const [opacity, setOpacity] = useState(0.3);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
@@ -44,7 +44,7 @@ export default function WatermarkPanel() {
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Contoh: CONFIDENTIAL, DRAFT, dll"
+          placeholder="Contoh: DRAFT, 10-10-2026 dll"
           className="w-full px-4 py-3 bg-base-dark border border-accent-muted/30 rounded-lg text-on-surface placeholder-accent-muted/50 focus:ring-2 focus:ring-highlight outline-none font-body text-body"
         />
       </div>
@@ -64,11 +64,6 @@ export default function WatermarkPanel() {
           className="w-full accent-highlight"
         />
       </div>
-
-      <p className="font-body text-caption text-accent-muted mt-2">
-        Catatan: v1 cuma support watermark teks diagonal di tengah halaman, belum
-        support upload logo/gambar (bisa ditambah kalau dibutuhin).
-      </p>
 
       <Button
         variant="primary"

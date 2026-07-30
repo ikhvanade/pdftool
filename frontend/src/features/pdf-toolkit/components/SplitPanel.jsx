@@ -76,7 +76,7 @@ export default function SplitPanel() {
                 : 'border-accent-muted/30 text-on-surface hover:border-accent-muted'
             }`}
           >
-            Ambil Range Halaman
+            Ambil Halaman Tertentu
           </button>
           <button
             onClick={() => setMode('each')}
@@ -109,7 +109,7 @@ export default function SplitPanel() {
 
       {mode === 'each' && (
         <p className="font-body text-caption text-accent-muted mt-4">
-          Hasilnya bakal di-zip jadi satu file, isinya satu PDF per halaman.
+          Hasilnya bakal jadi satu file, isinya satu PDF per halaman.
         </p>
       )}
 
@@ -124,7 +124,7 @@ export default function SplitPanel() {
       </Button>
 
       {status === 'done' && (
-        <p className="font-body text-body text-success mt-3">Berhasil! File udah otomatis ke-download.</p>
+        <p className="font-body text-body text-success mt-3">Berhasil! File sudah otomatis ke-download.</p>
       )}
       {status === 'failed' && error && <p className="font-body text-body text-error mt-3">{error}</p>}
     </div>

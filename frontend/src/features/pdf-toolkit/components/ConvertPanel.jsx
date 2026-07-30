@@ -42,12 +42,11 @@ export default function ConvertPanel() {
           ))}
         </div>
         <p className="font-body text-caption text-accent-muted mt-2">
-          PDF multi-halaman otomatis di-zip jadi satu file.
+          PDF multi-halaman otomatis jadi satu file.
         </p>
         <p className="font-body text-caption text-accent-muted mt-1">
-          Proses render tiap halaman ke gambar butuh waktu - makin banyak
-          halaman & makin besar file, makin lama (bisa puluhan detik buat
-          dokumen panjang). Halaman ini bakal nunjukin status sampai selesai.
+          Proses render tiap halaman butuh waktu - makin banyak
+          halaman & makin besar file, makin lama. Halaman ini akan menunjukkan status sampai selesai.
         </p>
       </div>
 

@@ -49,8 +49,8 @@ export default function CompressPanel() {
           ))}
         </div>
         <p className="font-body text-caption text-accent-muted mt-2">
-          *Perkiraan - hasil aktual tergantung isi PDF (dokumen penuh gambar
-          bakal ngurang lebih drastis daripada dokumen teks doang).
+          *Perkiraan - Hasil aktual tergantung isi PDF (dokumen penuh gambar
+          bakal berkurang lebih drastis daripada dokumen teks saja).
         </p>
       </div>
 

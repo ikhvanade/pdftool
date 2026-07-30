@@ -15,8 +15,8 @@ export default function TipsWidget() {
         <h4 className="font-heading text-h3 text-highlight">100% Privat</h4>
       </div>
       <p className="font-body text-body text-accent-muted">
-        Semua file yang kamu proses cuma disimpan di server kamu sendiri, gak
-        pernah ke server pihak ketiga. Selamanya gratis, gak ada paket premium.
+        Privasi aman, file diproses langsung di perangkatmu tanpa upload ke server 
+        pihak ketiga. 100% gratis selamanya, tanpa paket premium atau batasan fitur.
       </p>
     </div>
   );
