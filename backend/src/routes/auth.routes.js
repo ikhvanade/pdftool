@@ -9,6 +9,7 @@ const router = express.Router();
 router.post('/login', loginLimiter, asyncHandler(authController.login));
 router.post('/logout', asyncHandler(authController.logout));
 router.post('/change-password', requireAuth, asyncHandler(authController.changePassword));
+router.put('/profile', requireAuth, asyncHandler(authController.updateProfile));
 
 // TIDAK ADA router.post('/register', ...) - JANGAN DITAMBAHIN.
 // Sesuai CLAUDE.md rule #8 & PRD.md non-goals. Kalau butuh nambah user,

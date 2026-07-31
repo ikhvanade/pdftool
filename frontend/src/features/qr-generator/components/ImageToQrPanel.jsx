@@ -36,7 +36,7 @@ export default function ImageToQrPanel({ darkColor, lightColor, format }) {
       setStatus('failed');
       const code = err.response?.data?.error;
       if (code === 'GUEST_QUOTA_EXCEEDED') {
-        setError('Kuota gratis kamu udah habis. Login buat pemakaian unlimited.');
+        setError('Kuota gratis kamu sudah habis. Login untuk pemakaian unlimited.');
       } else if (code === 'PUBLIC_URL_NOT_CONFIGURED') {
         setError('Server belum di-setup buat fitur ini (PUBLIC_URL belum diisi admin).');
       } else {
@@ -49,11 +49,8 @@ export default function ImageToQrPanel({ darkColor, lightColor, format }) {
     <div className="space-y-4">
       <div className="bg-base-dark/50 border border-highlight/20 rounded-lg p-3">
         <p className="font-body text-caption text-accent-muted">
-          <span className="text-highlight font-medium">Cara kerja:</span> gambar
-          kamu di-upload & disimpan di server ini, lalu QR-nya encode LINK ke
-          gambar tersebut (bukan gambarnya langsung - QR code gak punya kapasitas
-          buat nyimpen data sebesar file gambar). Siapapun yang scan bakal
-          diarahin buka gambar itu di browser.
+          <span className="text-highlight font-medium">Gimana Ini Bekerja?</span> Sistem akan upload gambar kamu ke server dan generate link khusus. 
+          QR code menyimpan link tersebut, bukan file gambarnya. Ketika di-scan, QR code akan mengarahkan ke halaman gambar di browser.
         </p>
       </div>
 
@@ -81,7 +78,7 @@ export default function ImageToQrPanel({ darkColor, lightColor, format }) {
         disabled={!file || status === 'uploading'}
         onClick={handleGenerate}
       >
-        {status === 'uploading' ? 'Mengupload & generate...' : 'Generate QR dari Gambar Ini'}
+        {status === 'uploading' ? 'Mengupload & generate...' : 'Generate QR'}
       </Button>
 
       {status === 'failed' && error && (
@@ -90,7 +87,7 @@ export default function ImageToQrPanel({ darkColor, lightColor, format }) {
 
       {status === 'done' && result && (
         <div className="bg-base-dark rounded-lg border border-accent-muted/20 p-4 space-y-2">
-          <p className="font-body text-body text-success">File udah otomatis ke-download.</p>
+          <p className="font-body text-body text-success">File sudah otomatis didownload.</p>
           <p className="font-body text-caption text-accent-muted break-all">
             Link gambar: <a href={result.imageUrl} target="_blank" rel="noreferrer" className="text-highlight hover:underline">{result.imageUrl}</a>
           </p>

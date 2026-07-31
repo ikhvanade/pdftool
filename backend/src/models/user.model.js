@@ -28,4 +28,8 @@ async function updatePasswordHash(userId, passwordHash) {
   await pool.execute('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, userId]);
 }
 
-module.exports = { findByUsernameOrEmail, findById, createUser, updatePasswordHash };
+async function updateProfile(userId, { username, email }) {
+  await pool.execute('UPDATE users SET username = ?, email = ? WHERE id = ?', [username, email, userId]);
+}
+
+module.exports = { findByUsernameOrEmail, findById, createUser, updatePasswordHash, updateProfile };

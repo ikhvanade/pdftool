@@ -97,4 +97,44 @@ async function changePassword(req, res, next) {
   }
 }
 
-module.exports = { login, logout, changePassword };
+const updateProfileSchema = z.object({
+  username: z.string().min(3, 'Username minimal 3 karakter').max(50),
+  email: z.string().email('Format email gak valid'),
+});
+
+async function updateProfile(req, res, next) {
+  try {
+    const parsed = updateProfileSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'VALIDATION_ERROR',
+        details: parsed.error.flatten().fieldErrors,
+      });
+    }
+    const { username, email } = parsed.data;
+
+    try {
+      await userModel.updateProfile(req.user.id, { username, email });
+    } catch (err) {
+      if (err.code === 'ER_DUP_ENTRY') {
+        return fail(res, 'USERNAME_OR_EMAIL_TAKEN', 409);
+      }
+      throw err;
+    }
+
+    // Username ikut disign ke JWT (lihat login()), jadi kalau username
+    // berubah, token LAMA yang lagi dipake di device ini jadi stale (masih
+    // nunjukin username lama sampe expire). Terbitin token baru sekalian
+    // biar frontend bisa langsung update tanpa perlu logout-login manual.
+    const newToken = jwt.sign({ sub: req.user.id, username }, env.jwt.secret, {
+      expiresIn: env.jwt.expiresIn,
+    });
+
+    return ok(res, { token: newToken, user: { id: req.user.id, username, email } });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { login, logout, changePassword, updateProfile };
