@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -19,6 +20,20 @@ app.use(helmet());
 app.use(cors({ origin: env.frontendOrigin, credentials: true }));
 app.use(express.json());
 app.use(cookieParser(env.cookieSecret)); // secret buat signed cookie (guest_token)
+
+// Gambar yang di-upload user buat fitur "QR dari gambar" - HARUS publik &
+// bisa diakses dari mana aja (siapapun yang scan QR-nya, dari device/browser
+// apapun). helmet() defaultnya set Cross-Origin-Resource-Policy: same-origin
+// yang bakal MEMBLOKIR akses cross-origin ke gambar ini - di-override khusus
+// buat path ini.
+app.use(
+  '/uploads/qr-images',
+  (req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+  },
+  express.static(path.join(env.storage.dir, 'qr-images'))
+);
 
 app.get('/api/health', (req, res) => res.json({ success: true, data: { status: 'ok' } }));
 

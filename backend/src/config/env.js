@@ -37,4 +37,11 @@ module.exports = {
   },
 
   frontendOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+
+  // Base URL publik server ini (misal https://pdftool.vannlabs.web.id) -
+  // dipake buat generate link ke gambar yang di-upload user (fitur QR dari
+  // gambar). WAJIB di-set manual di .env karena server gak selalu bisa nebak
+  // domain publiknya sendiri dengan benar (apalagi di belakang Cloudflare
+  // Tunnel/reverse proxy).
+  publicUrl: process.env.PUBLIC_URL || null,
 };

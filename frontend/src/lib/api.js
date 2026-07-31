@@ -44,6 +44,14 @@ export const guestApi = {
 
 export const qrApi = {
   generate: (payload) => client.post('/qr/generate', payload).then((r) => r.data),
+  generateFromImage: (file, darkColor, lightColor, format) => {
+    const form = new FormData();
+    form.append('image', file);
+    form.append('darkColor', darkColor);
+    form.append('lightColor', lightColor);
+    form.append('format', format);
+    return client.post('/qr/generate-from-image', form).then((r) => r.data);
+  },
 };
 
 export const pdfApi = {

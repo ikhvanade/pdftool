@@ -28,7 +28,7 @@ export function parsePageRanges(rangeStr, totalPages) {
 
   for (const part of parts) {
     const match = part.match(/^(\d+)(?:-(\d+))?$/);
-    if (!match) throw new Error(`Format range gak valid: "${part}" (contoh yang bener: 1-3,5,7-9)`);
+    if (!match) throw new Error(`Format range tidak valid: "${part}" (contoh yang benar: 1-3,5,7-9)`);
 
     const start = parseInt(match[1], 10);
     const end = match[2] ? parseInt(match[2], 10) : start;
@@ -39,7 +39,7 @@ export function parsePageRanges(rangeStr, totalPages) {
     for (let i = start; i <= end; i++) indices.add(i - 1);
   }
 
-  if (indices.size === 0) throw new Error('Gak ada halaman yang valid dari input range itu');
+  if (indices.size === 0) throw new Error('Tidak ada halaman yang valid dari input range itu');
   return Array.from(indices).sort((a, b) => a - b);
 }
 
@@ -69,7 +69,7 @@ export async function splitPdf(file, mode, rangeStr) {
   return results;
 }
 
-export async function watermarkPdf(file, { text, opacity = 0.3, fontSize = 48, rotationDeg = -45 }) {
+export async function watermarkPdfText(file, { text, opacity = 0.3, fontSize = 48, rotationDeg = -45 }) {
   const bytes = await file.arrayBuffer();
   const doc = await PDFDocument.load(bytes);
   const font = await doc.embedFont(StandardFonts.HelveticaBold);
@@ -83,6 +83,35 @@ export async function watermarkPdf(file, { text, opacity = 0.3, fontSize = 48, r
       size: fontSize,
       font,
       color: rgb(0.58, 0.54, 0.47), // accent-muted (#948979) dari design.md
+      opacity,
+      rotate: degrees(rotationDeg),
+    });
+  });
+
+  return doc.save();
+}
+
+// Watermark pake gambar/logo - ditaro di tengah tiap halaman, ukurannya
+// disesuaikan proporsional ke lebar halaman biar konsisten di semua ukuran
+// kertas (bukan ukuran piksel asli gambar, yang bisa kegedean/kekecilan).
+export async function watermarkPdfImage(file, imageFile, { opacity = 0.3, widthRatio = 0.4, rotationDeg = -45 }) {
+  const bytes = await file.arrayBuffer();
+  const doc = await PDFDocument.load(bytes);
+
+  const imageBytes = await imageFile.arrayBuffer();
+  const isPng = imageFile.type === 'image/png';
+  const image = isPng ? await doc.embedPng(imageBytes) : await doc.embedJpg(imageBytes);
+  const aspectRatio = image.height / image.width;
+
+  doc.getPages().forEach((page) => {
+    const { width, height } = page.getSize();
+    const drawWidth = width * widthRatio;
+    const drawHeight = drawWidth * aspectRatio;
+    page.drawImage(image, {
+      x: width / 2 - drawWidth / 2,
+      y: height / 2 - drawHeight / 2,
+      width: drawWidth,
+      height: drawHeight,
       opacity,
       rotate: degrees(rotationDeg),
     });
