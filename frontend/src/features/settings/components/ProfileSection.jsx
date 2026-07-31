@@ -29,8 +29,11 @@ export default function ProfileSection({ user }) {
       setProfileStatus('success');
     } catch (err) {
       setProfileStatus('error');
+      const status = err.response?.status;
       const code = err.response?.data?.error;
-      if (code === 'USERNAME_OR_EMAIL_TAKEN') {
+      if (status === 401) {
+        setProfileError('Sesi login kamu udah expired - silakan logout & login ulang.');
+      } else if (code === 'USERNAME_OR_EMAIL_TAKEN') {
         setProfileError('Username atau email udah dipake orang lain.');
       } else if (code === 'VALIDATION_ERROR') {
         setProfileError('Username minimal 3 karakter, email harus format valid.');

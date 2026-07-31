@@ -16,6 +16,13 @@ const activityRoutes = require('./routes/activity.routes');
 
 const app = express();
 
+// WAJIB di-set karena server ini jalan di belakang Cloudflare Tunnel.
+// Tanpa ini, express-rate-limit throw error tiap kali baca header
+// X-Forwarded-For (yang di-set Cloudflare), dan IP yang kepake buat rate
+// limit jadi salah (bisa kebaca IP Cloudflare, bukan IP user asli).
+// Angka 1 = percaya SATU hop proxy di depan (Cloudflare Tunnel/cloudflared).
+app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(cors({ origin: env.frontendOrigin, credentials: true }));
 app.use(express.json());
