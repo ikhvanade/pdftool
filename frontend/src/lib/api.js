@@ -36,6 +36,8 @@ export const authApi = {
   logout: () => client.post('/auth/logout').then((r) => r.data),
   changePassword: (currentPassword, newPassword) =>
     client.post('/auth/change-password', { currentPassword, newPassword }).then((r) => r.data),
+  updateProfile: (username, email) =>
+    client.put('/auth/profile', { username, email }).then((r) => r.data),
 };
 
 export const guestApi = {
