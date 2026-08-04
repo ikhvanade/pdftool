@@ -75,6 +75,11 @@ export const pdfApi = {
     form.append('password', password);
     return client.post('/pdf/protect', form).then((r) => r.data);
   },
+  toWord: (file) => {
+    const form = new FormData();
+    form.append('file', file);
+    return client.post('/pdf/to-word', form).then((r) => r.data);
+  },
   getJobStatus: (jobId) => client.get(`/pdf/jobs/${jobId}`).then((r) => r.data),
   getDownloadUrl: (jobId) => `/api/pdf/download/${jobId}`,
 };

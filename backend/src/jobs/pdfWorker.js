@@ -70,6 +70,44 @@ async function protectPdf(inputPath, outputPath, password) {
   }
 }
 
+async function convertPdfToWord(inputPath, outputPath, jobId) {
+  const outputDir = path.dirname(outputPath);
+
+  // Setiap job pake profile LibreOffice terpisah (folder temp unik per jobId).
+  // WAJIB karena job queue bisa jalan 2 soffice bersamaan (CONCURRENCY=2 di
+  // pdfJobQueue.js) - tanpa ini, instance kedua bakal gagal karena "profile
+  // sudah dipakai proses lain" (soffice cuma boleh 1 instance per profile).
+  const profileDir = path.join('/tmp', `lo_profile_${jobId}`);
+
+  try {
+    // --infilter="writer_pdf_import" itu KUNCI - tanpa ini, LibreOffice buka
+    // PDF via Draw (treat sebagai gambar vektor per halaman), yang GAGAL
+    // di-export ke .docx. Dengan filter ini, PDF dibuka sebagai dokumen
+    // Writer (teks reflow-able) baru bisa di-convert ke Word beneran.
+    await execFileAsync('soffice', [
+      '--headless',
+      '--infilter=writer_pdf_import',
+      '--convert-to', 'docx:MS Word 2007 XML',
+      '--outdir', outputDir,
+      `-env:UserInstallation=file://${profileDir}`,
+      inputPath,
+    ], { timeout: 60000 }); // 60 detik timeout - dokumen kompleks/gede bisa lama
+
+    // soffice nge-generate nama file dari basename input (bukan nama custom),
+    // jadi perlu di-rename ke outputPath (${jobId}.docx) yang kita mau.
+    const inputBasename = path.basename(inputPath, path.extname(inputPath));
+    const generatedPath = path.join(outputDir, `${inputBasename}.docx`);
+
+    if (!fs.existsSync(generatedPath)) {
+      throw new Error('LibreOffice selesai tapi output .docx gak ada - kemungkinan PDF corrupt atau isinya cuma gambar/scan (butuh OCR, belum didukung)');
+    }
+    fs.renameSync(generatedPath, outputPath);
+  } finally {
+    // Bersihin profile temp - kalau dibiarin numpuk di /tmp tiap job.
+    fs.rmSync(profileDir, { recursive: true, force: true });
+  }
+}
+
 async function run() {
   const { jobId, type, inputPath, options } = workerData;
   const outputDir = path.join(path.dirname(inputPath), '..', 'processed');
@@ -98,6 +136,10 @@ async function run() {
     } else if (type === 'pdf_protect') {
       const outputPath = path.join(outputDir, `${jobId}.pdf`);
       await protectPdf(inputPath, outputPath, options.password);
+      parentPort.postMessage({ success: true, outputPath });
+    } else if (type === 'pdf_to_word') {
+      const outputPath = path.join(outputDir, `${jobId}.docx`);
+      await convertPdfToWord(inputPath, outputPath, jobId);
       parentPort.postMessage({ success: true, outputPath });
     } else {
       throw new Error(`UNKNOWN_JOB_TYPE: ${type}`);

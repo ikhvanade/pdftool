@@ -168,4 +168,33 @@ async function downloadJob(req, res, next) {
   }
 }
 
-module.exports = { compress, convert, protect, getJobStatus, downloadJob };
+async function toWord(req, res, next) {
+  try {
+    if (!req.file) return fail(res, 'NO_FILE_UPLOADED', 400);
+
+    const jobId = uuidv4();
+
+    await pool.execute(
+      `INSERT INTO processing_jobs (id, user_id, guest_token, job_type, status, input_path)
+       VALUES (?, ?, ?, 'pdf_to_word', 'pending', ?)`,
+      [jobId, req.user ? req.user.id : null, req.guestToken || null, req.file.path]
+    );
+
+    enqueueJob({
+      jobId,
+      type: 'pdf_to_word',
+      inputPath: req.file.path,
+      options: {},
+      userId: req.user ? req.user.id : null,
+      originalName: req.file.originalname,
+    });
+
+    if (req.incrementGuestUsage) await req.incrementGuestUsage();
+
+    return ok(res, { jobId, status: 'pending' }, 202);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { compress, convert, protect, toWord, getJobStatus, downloadJob };

@@ -4,6 +4,7 @@ export const TOOLS = [
   { id: 'compress', label: 'Compress', clientSide: false },
   { id: 'convert', label: 'PDF → Gambar', clientSide: false },
   { id: 'image-to-pdf', label: 'Gambar → PDF', clientSide: true },
+  { id: 'to-word', label: 'PDF → Word', clientSide: false },
   { id: 'watermark', label: 'Watermark', clientSide: true },
   { id: 'protect', label: 'Protect', clientSide: false },
 ];

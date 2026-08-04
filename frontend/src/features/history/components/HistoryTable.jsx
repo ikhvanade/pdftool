@@ -6,6 +6,7 @@ const TOOL_LABEL = {
   pdf_split: 'PDF Split',
   pdf_watermark: 'PDF Watermark',
   image_to_pdf: 'Gambar ke PDF',
+  pdf_to_word: 'PDF ke Word',
   qr_generate: 'QR Generate',
 };
 

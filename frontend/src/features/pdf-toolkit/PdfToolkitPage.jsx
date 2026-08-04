@@ -7,6 +7,7 @@ import CompressPanel from './components/CompressPanel';
 import ConvertPanel from './components/ConvertPanel';
 import ProtectPanel from './components/ProtectPanel';
 import ImageToPdfPanel from './components/ImageToPdfPanel';
+import WordConvertPanel from './components/WordConvertPanel';
 import Card from '../../components/Card';
 
 const PANEL_BY_TOOL = {
@@ -17,6 +18,7 @@ const PANEL_BY_TOOL = {
   convert: ConvertPanel,
   protect: ProtectPanel,
   'image-to-pdf': ImageToPdfPanel,
+  'to-word': WordConvertPanel,
 };
 
 export default function PdfToolkitPage() {
@@ -39,7 +41,7 @@ export default function PdfToolkitPage() {
         <ActivePanel />
         {tool.clientSide && (
           <p className="font-body text-caption text-accent-muted mt-6 pt-4 border-t border-accent-muted/10">
-            Diproses langsung di browser.
+            Diproses langsung di browser kamu - file gak diupload ke server sama sekali.
           </p>
         )}
       </Card>

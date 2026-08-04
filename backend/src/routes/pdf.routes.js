@@ -14,6 +14,7 @@ router.use(attachUserIfPresent);
 router.post('/compress', guestQuotaCheck, upload.single('file'), asyncHandler(pdfController.compress));
 router.post('/convert', guestQuotaCheck, upload.single('file'), asyncHandler(pdfController.convert));
 router.post('/protect', guestQuotaCheck, upload.single('file'), asyncHandler(pdfController.protect));
+router.post('/to-word', guestQuotaCheck, upload.single('file'), asyncHandler(pdfController.toWord));
 
 // Endpoint status/download BUKAN "pemakaian baru" - cuma ngecek/ngambil hasil
 // dari job yang UDAH kehitung kuotanya pas create. Makanya gak pake
