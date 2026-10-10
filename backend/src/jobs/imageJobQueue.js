@@ -1,4 +1,5 @@
 const { Worker } = require('worker_threads');
+const fs = require('fs');
 const path = require('path');
 const pool = require('../config/db');
 
@@ -9,6 +10,15 @@ const queue = [];
 function enqueueImageJob(job) {
   queue.push(job);
   processNext();
+}
+
+// processing_jobs.input_path cuma nyimpen file PERTAMA dari batch, jadi cleanup
+// cron gak bakal nemu file ke-2 dst (bocor di storage/uploads selamanya).
+// Solusi: input emang gak dibutuhin lagi setelah diproses -> hapus semua di sini.
+function deleteInputs(job) {
+  for (const f of job.files) {
+    fs.promises.unlink(f.path).catch(() => {});
+  }
 }
 
 async function processNext() {
@@ -31,10 +41,14 @@ async function processNext() {
     } else {
       await pool.execute("UPDATE processing_jobs SET status = 'failed', error_message = ? WHERE id = ?", [result.error, job.jobId]);
     }
+    deleteInputs(job);
   });
+
   worker.on('error', async (err) => {
     await pool.execute("UPDATE processing_jobs SET status = 'failed', error_message = ? WHERE id = ?", [err.message, job.jobId]);
+    deleteInputs(job);
   });
+
   worker.on('exit', () => { activeCount -= 1; processNext(); });
 }
 
