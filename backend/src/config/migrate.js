@@ -1,8 +1,3 @@
-// Simple migration runner: jalanin semua .sql file di /migrations urut nama file.
-// Belum ada tracking "migration mana yang udah jalan" (v1 keep simple) -
-// semua statement pakai CREATE TABLE IF NOT EXISTS jadi aman di-rerun.
-// TODO v2: tambah tabel `schema_migrations` buat tracking proper kalau migration makin banyak.
-
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
@@ -10,17 +5,11 @@ const env = require('./env');
 
 async function run() {
   const migrationsDir = path.join(__dirname, '..', '..', 'migrations');
-  const files = fs.readdirSync(migrationsDir)
-    .filter((f) => f.endsWith('.sql'))
-    .sort();
+  const files = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort();
 
   const connection = await mysql.createConnection({
-    host: env.db.host,
-    port: env.db.port,
-    user: env.db.user,
-    password: env.db.password,
-    database: env.db.database,
-    multipleStatements: true,
+    host: env.db.host, port: env.db.port, user: env.db.user,
+    password: env.db.password, database: env.db.database, multipleStatements: true,
   });
 
   try {
@@ -36,7 +25,4 @@ async function run() {
   }
 }
 
-run().catch((err) => {
-  console.error('[migrate] Failed:', err);
-  process.exit(1);
-});
+run().catch((err) => { console.error('[migrate] Failed:', err); process.exit(1); });

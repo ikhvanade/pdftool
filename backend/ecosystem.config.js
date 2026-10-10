@@ -4,9 +4,7 @@ module.exports = {
       name: 'pdf-qr-backend',
       script: 'src/server.js',
       cwd: __dirname,
-      instances: 1, // single instance karena job queue in-memory (lihat pdfJobQueue.js) -
-                    // kalau di-scale ke cluster mode, guest_usage race condition ke-handle
-                    // di level DB, tapi job queue HARUS pindah ke Redis/BullMQ dulu.
+      instances: 1,
       exec_mode: 'fork',
       autorestart: true,
       watch: false,

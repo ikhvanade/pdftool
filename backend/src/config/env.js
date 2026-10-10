@@ -23,11 +23,10 @@ module.exports = {
 
   jwt: {
     secret: required('JWT_SECRET'),
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '14d',
   },
 
   cookieSecret: required('COOKIE_SECRET'),
-
   guestQuotaLimit: parseInt(process.env.GUEST_QUOTA_LIMIT || '5', 10),
 
   storage: {
@@ -37,11 +36,5 @@ module.exports = {
   },
 
   frontendOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
-
-  // Base URL publik server ini (misal https://pdftool.vannlabs.web.id) -
-  // dipake buat generate link ke gambar yang di-upload user (fitur QR dari
-  // gambar). WAJIB di-set manual di .env karena server gak selalu bisa nebak
-  // domain publiknya sendiri dengan benar (apalagi di belakang Cloudflare
-  // Tunnel/reverse proxy).
   publicUrl: process.env.PUBLIC_URL || null,
 };

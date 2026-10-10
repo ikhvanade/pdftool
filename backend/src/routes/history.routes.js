@@ -4,10 +4,7 @@ const { requireAuth } = require('../middleware/authGuard');
 const asyncHandler = require('../utils/asyncHandler');
 
 const router = express.Router();
-
-router.use(requireAuth); // history cuma buat user login
-
+router.use(requireAuth);
 router.get('/', asyncHandler(historyController.list));
 router.delete('/:id', asyncHandler(historyController.remove));
-
 module.exports = router;

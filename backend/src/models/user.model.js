@@ -2,7 +2,7 @@ const pool = require('../config/db');
 
 async function findByUsernameOrEmail(identifier) {
   const [rows] = await pool.execute(
-    'SELECT id, username, email, password_hash FROM users WHERE username = ? OR email = ? LIMIT 1',
+    'SELECT id, username, email, password_hash, full_name, avatar_path, theme FROM users WHERE username = ? OR email = ? LIMIT 1',
     [identifier, identifier]
   );
   return rows[0] || null;
@@ -10,7 +10,7 @@ async function findByUsernameOrEmail(identifier) {
 
 async function findById(id) {
   const [rows] = await pool.execute(
-    'SELECT id, username, email, created_at FROM users WHERE id = ? LIMIT 1',
+    'SELECT id, username, email, full_name, avatar_path, theme, created_at FROM users WHERE id = ? LIMIT 1',
     [id]
   );
   return rows[0] || null;
@@ -28,8 +28,22 @@ async function updatePasswordHash(userId, passwordHash) {
   await pool.execute('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, userId]);
 }
 
-async function updateProfile(userId, { username, email }) {
-  await pool.execute('UPDATE users SET username = ?, email = ? WHERE id = ?', [username, email, userId]);
+async function updateProfile(userId, { username, email, fullName }) {
+  await pool.execute(
+    'UPDATE users SET username = ?, email = ?, full_name = ? WHERE id = ?',
+    [username, email, fullName ?? null, userId]
+  );
 }
 
-module.exports = { findByUsernameOrEmail, findById, createUser, updatePasswordHash, updateProfile };
+async function updateAvatar(userId, avatarPath) {
+  await pool.execute('UPDATE users SET avatar_path = ? WHERE id = ?', [avatarPath, userId]);
+}
+
+async function updateTheme(userId, theme) {
+  await pool.execute('UPDATE users SET theme = ? WHERE id = ?', [theme, userId]);
+}
+
+module.exports = {
+  findByUsernameOrEmail, findById, createUser,
+  updatePasswordHash, updateProfile, updateAvatar, updateTheme,
+};

@@ -1,71 +1,48 @@
-# Backend - PDF Toolkit & QR Generator Dashboard
+# Backend - PDFTool by Vann
 
-## Setup cepat
+## Status: BACKEND SELESAI (frontend + rebrand visual nyusul terpisah)
+
+## Setup
 ```bash
-# System dependencies (WAJIB install duluan sebelum npm install)
-sudo apt update
-sudo apt install -y ghostscript poppler-utils qpdf zip mariadb-server
-
 npm install
 cp .env.example .env
-# edit .env - isi DB credential, JWT_SECRET (random), COOKIE_SECRET (random, beda dari JWT_SECRET)
+# isi DB credential, JWT_SECRET, COOKIE_SECRET, PUBLIC_URL
 
-npm run migrate          # bikin semua tabel + jalanin migration 002 (pdf_protect)
+npm run migrate
 npm run create-user -- --username=admin --email=admin@example.com --password=passwordkuat123
-
-npm run dev               # dev mode (nodemon)
-# atau production:
-pm2 start ecosystem.config.js
+npm run dev
 ```
 
-## Status implementasi (per sesi ini)
-Sudah jalan & FULL tested (bukan cuma nulis kode, tapi bener2 dites end-to-end):
-- Auth: login/logout (JWT), TANPA endpoint register (sesuai aturan keras)
-- guestQuotaCheck middleware - atomic increment, gak block endpoint status/download
-- PDF compress - job-based (worker_threads) + **Ghostscript** (`gs`), 3 level: low/medium/high
-- PDF convert - job-based + **poppler-utils** (`pdftoppm`), multi-page otomatis di-zip
-- PDF protect - job-based + **qpdf** (AES-256 encryption)
-- Download endpoint `/api/pdf/download/:id` - dengan ownership check (user/guest cuma bisa download job miliknya sendiri)
-- Cleanup script (`npm run cleanup`) - hapus file+row expired dari `processing_jobs` & `files_temp`
-- QR generate - full jalan (qrcode npm lib), server-side biar kena guest quota + activity log
-- History & Presets - full CRUD dasar, khusus user login
-- Migration schema lengkap (001 + 002)
-
-## System requirements di server
-- Node.js
-- MariaDB
-- **Ghostscript** (`gs`) - buat compress
-- **poppler-utils** (`pdftoppm`) - buat convert
-- **qpdf** - buat protect
-- **zip** - buat compress hasil convert multi-halaman jadi 1 file
-
-## Setup cron cleanup (jalanin tiap jam)
+## System requirements (WAJIB install di server)
 ```bash
-crontab -e
-# tambahin baris ini:
-0 * * * * cd /path/ke/backend && /usr/bin/node scripts/cleanup-expired-files.js >> logs/cleanup.log 2>&1
+sudo apt install ghostscript poppler-utils qpdf zip --no-install-recommends libreoffice-writer
 ```
 
-## Belum/sengaja di-skip (butuh konfirmasi/keputusan lo dulu)
-- PDF merge/split/watermark/preview -> ini emang client-side per PRD, gak ada di backend
-- Token blacklist buat proper JWT logout invalidation
+## Endpoint baru sesi ini (Image Compressor/Resizer, PRD §6.7)
+- `POST /api/image/compress` - body: `preset` (normal|sedang|ekstrim), multipart `files[]`
+- `POST /api/image/resize` - body: `printSize` (2x3|3x4|4x6) ATAU `customWidth`+`customHeight`, multipart `files[]`
+- `POST /api/image/convert` - body: `format` (jpeg|png|webp), multipart `files[]`
+- `GET /api/image/jobs/:id`, `GET /api/image/download/:id` - sama pattern kayak PDF
 
-## Catatan jujur soal compress
-Ghostscript compress efeknya BARU keliatan signifikan di PDF yang isinya gambar/scan
-resolusi tinggi. PDF yang isinya teks doang (kayak hasil `pdf-lib` generate) malah
-bisa JADI LEBIH BESAR gara-gara overhead re-encoding Ghostscript - itu normal,
-bukan bug.
+Semua 3 endpoint: guestQuotaCheck, job-based (worker_threads), batch multi-file
+(auto-zip kalau >1 file), pake `sharp` (bukan ImageMagick).
 
-## Kenapa compress/convert/protect job-based, bukan langsung proses?
-Semua ini CPU-bound (Ghostscript/poppler/qpdf itu proses eksternal) - kalau
-ditunggu sync di request handler, request lain ikut nge-lag kalau ada beberapa
-proses bersamaan. Solusinya: terima file -> return job_id -> proses di
-worker_thread terpisah -> client polling GET /api/pdf/jobs/:id -> download via
-GET /api/pdf/download/:id.
+## Endpoint baru lain (dari sesi-sesi sebelumnya, tetap ada)
+- Auth: login, logout, change-password, update profile (`full_name` baru), update theme, upload avatar
+- PDF: compress, convert, protect, to-word (LibreOffice), merge/split/watermark (client-side, gak ada di backend)
+- QR: generate (+ embed logo), generate-from-image
+- History, Presets, Guest quota, Activity log
 
-## Keamanan yang perlu diperhatikan
-- Password buat PDF protect TIDAK PERNAH disimpan ke DB, cuma dilempar in-memory ke worker.
-- Semua command ke `gs`/`pdftoppm`/`qpdf` pakai `execFile` (bukan `exec`/shell string),
-  jadi input user gak lewat shell interpretation (defense-in-depth terhadap command injection).
-- Endpoint status/download job punya ownership check - gak bisa sembarangan
-  akses job ID orang lain walau ke-tebak UUID-nya.
+## PENTING - migration 005 nambah kolom baru di `users`
+`full_name`, `avatar_path`, `theme` (default 'dark'). Jalanin `npm run migrate` di server buat apply.
+
+## Belum dikerjain di sesi ini (nyusul)
+- Frontend: rebrand visual total (sidebar 4 item, palette biru light/dark, font Inter+JetBrains Mono)
+- Frontend: halaman Image Tool (upload multi-file, panel compress/resize/convert)
+- Theme toggle UI di Settings
+- Upload avatar UI
+
+## Testing
+Belum sempat dites end-to-end di sesi ini (fokus ngirim progress dulu). WAJIB
+dites manual: migrate jalan bersih, dan endpoint /api/image/* pake curl
+sebelum dipakein di frontend.

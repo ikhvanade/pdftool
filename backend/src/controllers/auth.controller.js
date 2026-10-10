@@ -8,10 +8,9 @@ const { ok, fail } = require('../utils/response');
 
 // PENTING: file ini SENGAJA tidak punya fungsi `register`.
 // Sesuai CLAUDE.md rule #8 - akun cuma dibuat manual lewat scripts/create-user.js.
-// Jangan tambahin endpoint register di sini tanpa konfirmasi eksplisit dari user.
 
 const loginSchema = z.object({
-  identifier: z.string().min(1, 'Username/email wajib diisi'), // username ATAU email
+  identifier: z.string().min(1, 'Username/email wajib diisi'),
   password: z.string().min(1, 'Password wajib diisi'),
 });
 
@@ -19,43 +18,31 @@ async function login(req, res, next) {
   try {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({
-        success: false,
-        error: 'VALIDATION_ERROR',
-        details: parsed.error.flatten().fieldErrors,
-      });
+      return res.status(400).json({ success: false, error: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors });
     }
-
     const { identifier, password } = parsed.data;
     const user = await userModel.findByUsernameOrEmail(identifier);
 
-    // Selalu compare bcrypt walau user gak ketemu, hindari timing attack
-    // yang bisa dipake buat enumerasi username valid vs tidak.
     const dummyHash = '$2b$10$CwTycUXWue0Thq9StjUM0uJ8lHwYzZm.QRWSbP0m1EJHf1jvbdX7O';
     const passwordHash = user ? user.password_hash : dummyHash;
     const isValid = await bcrypt.compare(password, passwordHash);
 
-    if (!user || !isValid) {
-      return fail(res, 'INVALID_CREDENTIALS', 401);
-    }
+    if (!user || !isValid) return fail(res, 'INVALID_CREDENTIALS', 401);
 
-    const token = jwt.sign(
-      { sub: user.id, username: user.username },
-      env.jwt.secret,
-      { expiresIn: env.jwt.expiresIn }
-    );
+    const token = jwt.sign({ sub: user.id, username: user.username }, env.jwt.secret, { expiresIn: env.jwt.expiresIn });
 
     return ok(res, {
       token,
-      user: { id: user.id, username: user.username, email: user.email },
+      user: {
+        id: user.id, username: user.username, email: user.email,
+        fullName: user.full_name, avatarPath: user.avatar_path, theme: user.theme,
+      },
     });
   } catch (err) {
     next(err);
   }
 }
 
-// Stateless JWT -> logout ini cuma formalitas di server (client yang buang token).
-// Lihat catatan review: kalau butuh proper invalidation, perlu token blacklist table.
 async function logout(req, res) {
   return ok(res, { message: 'Logged out' });
 }
@@ -69,15 +56,10 @@ async function changePassword(req, res, next) {
   try {
     const parsed = changePasswordSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({
-        success: false,
-        error: 'VALIDATION_ERROR',
-        details: parsed.error.flatten().fieldErrors,
-      });
+      return res.status(400).json({ success: false, error: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors });
     }
     const { currentPassword, newPassword } = parsed.data;
 
-    // req.user di-attach oleh middleware requireAuth (lihat auth.routes.js)
     const [rows] = await pool.execute('SELECT password_hash FROM users WHERE id = ?', [req.user.id]);
     if (rows.length === 0) return fail(res, 'USER_NOT_FOUND', 404);
 
@@ -87,10 +69,6 @@ async function changePassword(req, res, next) {
     const newHash = await bcrypt.hash(newPassword, 10);
     await userModel.updatePasswordHash(req.user.id, newHash);
 
-    // Catatan: karena JWT stateless, token yang lagi dipake di device lain
-    // TETEP valid sampe expire (7 hari) walau password udah diganti. Ini
-    // trade-off yang sama kayak logout - kalau butuh invalidate semua sesi
-    // lain pas ganti password, perlu token blacklist/versioning (belum ada di v1).
     return ok(res, { message: 'Password berhasil diganti' });
   } catch (err) {
     next(err);
@@ -100,41 +78,67 @@ async function changePassword(req, res, next) {
 const updateProfileSchema = z.object({
   username: z.string().min(3, 'Username minimal 3 karakter').max(50),
   email: z.string().email('Format email gak valid'),
+  fullName: z.string().max(100).nullable().optional(),
 });
 
 async function updateProfile(req, res, next) {
   try {
     const parsed = updateProfileSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({
-        success: false,
-        error: 'VALIDATION_ERROR',
-        details: parsed.error.flatten().fieldErrors,
-      });
+      return res.status(400).json({ success: false, error: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors });
     }
-    const { username, email } = parsed.data;
+    const { username, email, fullName } = parsed.data;
 
     try {
-      await userModel.updateProfile(req.user.id, { username, email });
+      await userModel.updateProfile(req.user.id, { username, email, fullName });
     } catch (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
-        return fail(res, 'USERNAME_OR_EMAIL_TAKEN', 409);
-      }
+      if (err.code === 'ER_DUP_ENTRY') return fail(res, 'USERNAME_OR_EMAIL_TAKEN', 409);
       throw err;
     }
 
-    // Username ikut disign ke JWT (lihat login()), jadi kalau username
-    // berubah, token LAMA yang lagi dipake di device ini jadi stale (masih
-    // nunjukin username lama sampe expire). Terbitin token baru sekalian
-    // biar frontend bisa langsung update tanpa perlu logout-login manual.
-    const newToken = jwt.sign({ sub: req.user.id, username }, env.jwt.secret, {
-      expiresIn: env.jwt.expiresIn,
-    });
+    // Username ikut di-sign ke JWT, jadi terbitin token baru biar frontend
+    // gak perlu logout-login manual abis ganti username.
+    const newToken = jwt.sign({ sub: req.user.id, username }, env.jwt.secret, { expiresIn: env.jwt.expiresIn });
 
-    return ok(res, { token: newToken, user: { id: req.user.id, username, email } });
+    const updated = await userModel.findById(req.user.id);
+    return ok(res, {
+      token: newToken,
+      user: {
+        id: updated.id, username: updated.username, email: updated.email,
+        fullName: updated.full_name, avatarPath: updated.avatar_path, theme: updated.theme,
+      },
+    });
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { login, logout, changePassword, updateProfile };
+const updateThemeSchema = z.object({ theme: z.enum(['light', 'dark']) });
+
+// Theme disimpen per-user di DB (bukan cuma localStorage) sesuai
+// design.md §2 "hyper-personalization... persisted per-user".
+async function updateTheme(req, res, next) {
+  try {
+    const parsed = updateThemeSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors });
+    }
+    await userModel.updateTheme(req.user.id, parsed.data.theme);
+    return ok(res, { theme: parsed.data.theme });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updateAvatar(req, res, next) {
+  try {
+    if (!req.file) return fail(res, 'NO_FILE_UPLOADED', 400);
+    const avatarPath = `/uploads/avatars/${req.file.filename}`;
+    await userModel.updateAvatar(req.user.id, avatarPath);
+    return ok(res, { avatarPath });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { login, logout, changePassword, updateProfile, updateTheme, updateAvatar };

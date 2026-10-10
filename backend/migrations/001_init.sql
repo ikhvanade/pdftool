@@ -1,7 +1,3 @@
--- Migration 001: initial schema
--- Jalankan via: mysql -u root -p pdfqr_dashboard < migrations/001_init.sql
--- atau via npm run migrate (lihat src/config/migrate.js)
-
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
@@ -52,8 +48,6 @@ CREATE TABLE IF NOT EXISTS files_temp (
   INDEX idx_filetemp_expires (expires_at)
 ) ENGINE=InnoDB;
 
--- Job tracking untuk operasi berat (compress/convert) yang diproses async
--- (tidak ada di draft PRD, tapi wajib biar endpoint gak blocking - lihat catatan review)
 CREATE TABLE IF NOT EXISTS processing_jobs (
   id VARCHAR(36) PRIMARY KEY,
   user_id INT NULL,
