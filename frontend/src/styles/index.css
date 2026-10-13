@@ -2,20 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Geist', sans-serif;
+/* Token warna - design.md §3. Format "R G B" (tanpa koma) biar bisa dipakai
+   bareng opacity Tailwind (mis. bg-primary/10, border-line/50). */
+:root {
+  --c-bg: 247 248 250;
+  --c-surface: 255 255 255;
+  --c-border: 226 232 240;
+  --c-primary: 29 78 216;
+  --c-text: 15 23 42;
+  --c-muted: 100 116 139;
+  --c-accent-heading: 29 78 216; /* light mode: heading aksen = primary */
+  --c-highlight: 29 78 216;      /* alias lama: teks aksen/link */
+  --c-error: 220 38 38;
+  --c-success: 22 163 74;
 }
 
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.dark {
+  --c-bg: 10 20 32;
+  --c-surface: 15 27 43;
+  --c-border: 30 45 64;
+  --c-primary: 29 78 216;         /* sama persis di dua mode (brand) */
+  --c-text: 226 232 240;
+  --c-muted: 100 116 139;
+  --c-accent-heading: 147 197 253;
+  --c-highlight: 147 197 253;
+  --c-error: 248 113 113;
+  --c-success: 74 222 128;
 }
 
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
+@layer base {
+  body {
+    @apply bg-page text-ink font-body antialiased;
   }
 }
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

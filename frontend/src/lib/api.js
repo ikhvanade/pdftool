@@ -1,34 +1,56 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
+import { useQuotaModalStore } from '../store/quotaModalStore';
 
-// Base URL kosong karena Vite dev server proxy /api -> backend (lihat vite.config.js).
-// Di production, Nginx yang route /api/* ke backend (sesuai CLAUDE.md deployment notes).
 const client = axios.create({
   baseURL: '/api',
-  withCredentials: true, // wajib, biar signed cookie guest_token ke-attach ke tiap request
+  withCredentials: true, // wajib, biar signed cookie guest_token ikut kekirim
 });
 
-// Attach JWT kalau user login. Guest (tanpa token) tetep jalan normal -
-// backend yang nentuin guest vs login lewat ada/gaknya header ini.
 client.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Kalau backend balikin 401 (token invalid/expired), otomatis logout di client
-// biar UI gak nyangkut nganggep masih login padahal token-nya udah mati.
 client.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const status = err.response?.status;
+    const code = err.response?.data?.error;
+
+    // Logout otomatis CUMA kalau token-nya yang bermasalah. Dulu semua 401 ikut
+    // ke-logout, termasuk "password lama salah" di Settings (juga 401) - jadi
+    // salah ketik password lama malah ke-lempar ke halaman login.
+    if (status === 401 && (code === 'UNAUTHORIZED' || code === 'TOKEN_INVALID_OR_EXPIRED')) {
       useAuthStore.getState().logout();
+    }
+    // Kuota guest habis -> munculin modal (design.md §5.2.1) dari tool manapun
+    if (status === 403 && code === 'GUEST_QUOTA_EXCEEDED') {
+      useQuotaModalStore.getState().show();
     }
     return Promise.reject(err);
   }
 );
+
+// Download file hasil job LEWAT axios (bukan <a href> biasa). Link biasa gak
+// bawa header Authorization (JWT cuma ada di localStorage), jadi user login
+// kena 403 dan browser malah nyimpen JSON error-nya sebagai file.
+export async function downloadAuthed(url) {
+  const res = await client.get(url.replace(/^\/api/, ''), { responseType: 'blob' });
+  const disposition = res.headers['content-disposition'] || '';
+  const match = disposition.match(/filename="?([^";]+)"?/i);
+  const filename = match ? match[1] : 'hasil';
+
+  const objectUrl = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = objectUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
 
 export const authApi = {
   login: (identifier, password) =>
@@ -36,8 +58,14 @@ export const authApi = {
   logout: () => client.post('/auth/logout').then((r) => r.data),
   changePassword: (currentPassword, newPassword) =>
     client.post('/auth/change-password', { currentPassword, newPassword }).then((r) => r.data),
-  updateProfile: (username, email) =>
-    client.put('/auth/profile', { username, email }).then((r) => r.data),
+  updateProfile: (username, email, fullName) =>
+    client.put('/auth/profile', { username, email, fullName }).then((r) => r.data),
+  updateTheme: (theme) => client.put('/auth/theme', { theme }).then((r) => r.data),
+  uploadAvatar: (file) => {
+    const form = new FormData();
+    form.append('avatar', file);
+    return client.post('/auth/avatar', form).then((r) => r.data);
+  },
 };
 
 export const guestApi = {
@@ -82,6 +110,26 @@ export const pdfApi = {
   },
   getJobStatus: (jobId) => client.get(`/pdf/jobs/${jobId}`).then((r) => r.data),
   getDownloadUrl: (jobId) => `/api/pdf/download/${jobId}`,
+};
+
+function imageForm(files, fields) {
+  const form = new FormData();
+  files.forEach((f) => form.append('files', f));
+  Object.entries(fields).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') form.append(k, v);
+  });
+  return form;
+}
+
+export const imageApi = {
+  compress: (files, preset) =>
+    client.post('/image/compress', imageForm(files, { preset })).then((r) => r.data),
+  resize: (files, { printSize, customWidth, customHeight }) =>
+    client.post('/image/resize', imageForm(files, { printSize, customWidth, customHeight })).then((r) => r.data),
+  convert: (files, format) =>
+    client.post('/image/convert', imageForm(files, { format })).then((r) => r.data),
+  getJobStatus: (jobId) => client.get(`/image/jobs/${jobId}`).then((r) => r.data),
+  getDownloadUrl: (jobId) => `/api/image/download/${jobId}`,
 };
 
 export const historyApi = {
